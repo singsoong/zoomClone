@@ -23,11 +23,9 @@ const httpServer = http.createServer(app);
 const ioServer = SocketIO(httpServer);
 
 ioServer.on("connection", (socket) => {
-  socket.on("room", (msg, done) => {
-    console.log(msg);
-    setTimeout(() => {
-      done();
-    }, 5000);
+  socket.on("room", (roomName, done) => {
+    socket.join(roomName);
+    done();
   });
 });
 
