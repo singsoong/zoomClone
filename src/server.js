@@ -19,13 +19,18 @@ const server = http.createServer(app); // express application으로 부터 서�
 
 const wss = new WebSocket.Server({ server }); // 서버를 전달해서 웹소켓 서버를 만들어서 http 서버, webSocket서버 둘 다 돌리는 것, webSocket 서버를 만든것! 이렇게 되면 localhost:3000은 http, webSocket 서버 둘다 작동 시킬 수 있게 된다.
 
+const sockets = []; // fake database, 누군가 connection을 연결하면 여기에 넣어줄 것
+
 wss.on("connection", (socket) => {
+  sockets.push(socket); // 각 브라우저에서 연결이 되면 socket을 푸쉬, 브라우저마다의 소켓을 수집해서 브라우저끼리 연결할 수 있게 함.
   console.log("브라우저와 연결 성공!");
   socket.on("close", () => {
     console.log("브라우저와 연결이 끊겼습니다.");
   }); // 브라우저가 disconnect 되었을 때
   socket.on("message", (message) => {
-    console.log(message.toString("utf-8"));
+    sockets.forEach((aSocket) => {
+      aSocket.send(message.toString());
+    });
   }); // 프론트에서 보낸 메시지를 출력
   socket.send("hello!!"); // 프론트로 메시지 전송
 }); // connection 이벤트 등록

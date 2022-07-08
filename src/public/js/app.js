@@ -1,3 +1,6 @@
+const messageList = document.querySelector("ul");
+const messageForm = document.querySelector("form");
+
 const socket = new WebSocket(`ws://${window.location.host}`);
 
 socket.addEventListener("open", () => {
@@ -12,6 +15,11 @@ socket.addEventListener("close", () => {
   console.log("서버와 연결이 끊어졌습니다.");
 }); // 서버가 off 되었을 때 발생하는 이벤트 등록
 
-setTimeout(() => {
-  socket.send("브라우저에서 보낸 메시지");
-}, 3000); // 3초 후 서버로 메시지 전송
+function handleSubmit(event) {
+  event.preventDefault();
+  const input = messageForm.querySelector("input");
+  socket.send(input.value);
+  input.value = "";
+}
+
+messageForm.addEventListener("submit", handleSubmit);
