@@ -4,7 +4,7 @@ const nickNameForm = document.querySelector("#nickName");
 
 const socket = new WebSocket(`ws://${window.location.host}`);
 
-/* Message의 object를 stringify */
+/* Message를 object로 만들고 stringify 하는 func */
 function makeMessage(type, payload) {
   const msg = { type, payload };
   return JSON.stringify(msg);
