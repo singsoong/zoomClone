@@ -23,16 +23,26 @@ const sockets = []; // fake database, 누군가 connection을 연결하면 여�
 
 wss.on("connection", (socket) => {
   sockets.push(socket); // 각 브라우저에서 연결이 되면 socket을 푸쉬, 브라우저마다의 소켓을 수집해서 브라우저끼리 연결할 수 있게 함.
+  socket["nickName"] = "익명";
   console.log("브라우저와 연결 성공!");
   socket.on("close", () => {
     console.log("브라우저와 연결이 끊겼습니다.");
   }); // 브라우저가 disconnect 되었을 때
   socket.on("message", (message) => {
-    sockets.forEach((aSocket) => {
-      aSocket.send(message.toString());
-    });
+    const parseMessage = JSON.parse(message); // 프론트에서 받은 object를 parsing해서
+    switch (parseMessage.type.toString()) {
+      case "message": // 타입이 message이면,
+        sockets.forEach((aSocket) => {
+          aSocket.send(
+            `${socket.nickName}: ${parseMessage.payload.toString()}`
+          );
+        });
+        break;
+      case "nickName": // 타입이 nickName이면,
+        socket["nickName"] = parseMessage.payload.toString();
+        break;
+    }
   }); // 프론트에서 보낸 메시지를 출력
-  socket.send("hello!!"); // 프론트로 메시지 전송
 }); // connection 이벤트 등록
 
 server.listen(3000, handleListen);

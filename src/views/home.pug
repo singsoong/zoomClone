@@ -10,8 +10,11 @@ html(lang="en")
     header
       h1 Zoom
     main
+      form#nickName
+        input(type="text", placeholder="닉네임을 입력해주세요", required)
+        button 저장
       ul
-      form
+      form#message
         input(type="text", placeholder="메시지를 작성해주세요", required)
-        button Send
+        button 전송
     script(src="/public/js/app.js")
