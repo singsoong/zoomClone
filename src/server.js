@@ -19,4 +19,10 @@ const server = http.createServer(app); // express application으로 부터 서�
 
 const wss = new WebSocket.Server({ server }); // 서버를 전달해서 웹소켓 서버를 만들어서 http 서버, webSocket서버 둘 다 돌리는 것, webSocket 서버를 만든것! 이렇게 되면 localhost:3000은 http, webSocket 서버 둘다 작동 시킬 수 있게 된다.
 
+function handleConnection(socket) {
+  console.log("연결 성공!");
+}
+
+wss.on("connection", handleConnection); // connection 이벤트에 대한 handle function을 등록했음
+
 server.listen(3000, handleListen);
