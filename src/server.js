@@ -23,10 +23,20 @@ const httpServer = http.createServer(app);
 const ioServer = SocketIO(httpServer);
 
 ioServer.on("connection", (socket) => {
+  /* 방 입장시 Event */
   socket.on("room", (roomName, done) => {
     socket.join(roomName);
     done();
     socket.to(roomName).emit("welcome");
+  });
+  /* 방 퇴장시 Event */
+  socket.on("disconnecting", () => {
+    socket.rooms.forEach((room) => socket.to(room).emit("bye"));
+  });
+  /* 메시지 전송 Event */
+  socket.on("new_message", (msg, room, done) => {
+    socket.to(room).emit("new_message", msg);
+    done();
   });
 });
 
