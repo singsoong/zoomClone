@@ -48,6 +48,7 @@ const handleRoomSubmit = (event) => {
 };
 form.addEventListener("submit", handleRoomSubmit);
 
+/* 닉네임 submit 핸들러 */
 const handleNickSubmit = (event) => {
   event.preventDefault();
   const input = nick.querySelector("input");
@@ -56,11 +57,15 @@ const handleNickSubmit = (event) => {
 };
 nick.addEventListener("submit", handleNickSubmit);
 
-socket.on("welcome", (nick) => {
+socket.on("welcome", (nick, roomCount) => {
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${roomCount})`;
   addMessage(`${nick}님이 방에 들어왔습니다!`);
 });
 
-socket.on("bye", (nick) => {
+socket.on("bye", (nick, roomCount) => {
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${roomCount})`;
   addMessage(`${nick}님이 방을 나갔습니다!`);
 });
 
@@ -68,6 +73,7 @@ socket.on("new_message", (msg) => {
   addMessage(msg);
 });
 
+/* room list print */
 socket.on("room_change", (rooms) => {
   const roomLists = welcome.querySelector("ul");
   roomLists.innerHTML = "";

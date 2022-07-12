@@ -1,3 +1,4 @@
+import { count } from "console";
 import express from "express";
 import http from "http";
 import SocketIO from "socket.io";
@@ -22,6 +23,7 @@ const httpServer = http.createServer(app);
 /* socket.io 서버 생성 */
 const ioServer = SocketIO(httpServer);
 
+/* room list print */
 function publicRooms() {
   const {
     sockets: {
@@ -37,6 +39,11 @@ function publicRooms() {
   return publicRooms;
 }
 
+/* user count */
+function countRoom(roomName) {
+  return ioServer.sockets.adapter.rooms.get(roomName)?.size;
+}
+
 ioServer.on("connection", (socket) => {
   socket["nickName"] = "익명";
 
@@ -48,13 +55,13 @@ ioServer.on("connection", (socket) => {
   socket.on("room", (roomName, done) => {
     socket.join(roomName);
     done();
-    socket.to(roomName).emit("welcome", socket.nickName);
+    socket.to(roomName).emit("welcome", socket.nickName, countRoom(roomName));
     ioServer.sockets.emit("room_change", publicRooms());
   });
   /* 방 퇴장시 Event */
   socket.on("disconnecting", () => {
     socket.rooms.forEach((room) =>
-      socket.to(room).emit("bye", socket.nickName)
+      socket.to(room).emit("bye", socket.nickName, countRoom(room) - 1)
     );
   });
   /* 방 퇴장 후 Event */
