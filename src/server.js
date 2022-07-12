@@ -23,20 +23,26 @@ const httpServer = http.createServer(app);
 const ioServer = SocketIO(httpServer);
 
 ioServer.on("connection", (socket) => {
+  socket["nickName"] = "익명";
   /* 방 입장시 Event */
   socket.on("room", (roomName, done) => {
     socket.join(roomName);
     done();
-    socket.to(roomName).emit("welcome");
+    socket.to(roomName).emit("welcome", socket.nickName);
   });
   /* 방 퇴장시 Event */
   socket.on("disconnecting", () => {
-    socket.rooms.forEach((room) => socket.to(room).emit("bye"));
+    socket.rooms.forEach((room) =>
+      socket.to(room).emit("bye", socket.nickName)
+    );
   });
   /* 메시지 전송 Event */
   socket.on("new_message", (msg, room, done) => {
-    socket.to(room).emit("new_message", msg);
+    socket.to(room).emit("new_message", `${socket["nickName"]}: ${msg}`);
     done();
+  });
+  socket.on("nick", (nick) => {
+    socket["nickName"] = nick;
   });
 });
 

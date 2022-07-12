@@ -3,6 +3,7 @@ const socket = io();
 const welcome = document.getElementById("welcome");
 const form = welcome.querySelector("form");
 const room = document.getElementById("room");
+const nick = document.getElementById("nick");
 
 room.hidden = true;
 
@@ -47,12 +48,20 @@ const handleRoomSubmit = (event) => {
 };
 form.addEventListener("submit", handleRoomSubmit);
 
-socket.on("welcome", () => {
-  addMessage("누군가 방에 들어왔습니다!");
+const handleNickSubmit = (event) => {
+  event.preventDefault();
+  const input = nick.querySelector("input");
+  socket.emit("nick", input.value);
+  input.value = "";
+};
+nick.addEventListener("submit", handleNickSubmit);
+
+socket.on("welcome", (nick) => {
+  addMessage(`${nick}님이 방에 들어왔습니다!`);
 });
 
-socket.on("bye", () => {
-  addMessage("누군가 방을 나갔습니다!");
+socket.on("bye", (nick) => {
+  addMessage(`${nick}님이 방을 나갔습니다!`);
 });
 
 socket.on("new_message", (msg) => {
