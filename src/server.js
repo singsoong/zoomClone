@@ -22,13 +22,34 @@ const httpServer = http.createServer(app);
 /* socket.io 서버 생성 */
 const ioServer = SocketIO(httpServer);
 
+function publicRooms() {
+  const {
+    sockets: {
+      adapter: { sids, rooms },
+    },
+  } = ioServer;
+  const publicRooms = [];
+  rooms.forEach((value, key) => {
+    if (sids.get(key) === undefined) {
+      publicRooms.push(key);
+    }
+  });
+  return publicRooms;
+}
+
 ioServer.on("connection", (socket) => {
   socket["nickName"] = "익명";
+
+  socket.onAny((event) => {
+    console.log(ioServer.sockets.adapter);
+    console.log(`Socket Event: ${event}`);
+  });
   /* 방 입장시 Event */
   socket.on("room", (roomName, done) => {
     socket.join(roomName);
     done();
     socket.to(roomName).emit("welcome", socket.nickName);
+    ioServer.sockets.emit("room_change", publicRooms());
   });
   /* 방 퇴장시 Event */
   socket.on("disconnecting", () => {
@@ -36,11 +57,16 @@ ioServer.on("connection", (socket) => {
       socket.to(room).emit("bye", socket.nickName)
     );
   });
+  /* 방 퇴장 후 Event */
+  socket.on("disconnect", () => {
+    ioServer.sockets.emit("room_change", publicRooms());
+  });
   /* 메시지 전송 Event */
   socket.on("new_message", (msg, room, done) => {
     socket.to(room).emit("new_message", `${socket["nickName"]}: ${msg}`);
     done();
   });
+  /* 닉네임 받는 Event */
   socket.on("nick", (nick) => {
     socket["nickName"] = nick;
   });

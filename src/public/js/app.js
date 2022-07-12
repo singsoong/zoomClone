@@ -67,3 +67,17 @@ socket.on("bye", (nick) => {
 socket.on("new_message", (msg) => {
   addMessage(msg);
 });
+
+socket.on("room_change", (rooms) => {
+  const roomLists = welcome.querySelector("ul");
+  roomLists.innerHTML = "";
+  if (rooms.length === 0) {
+    roomLists.innerHTML = "";
+    return;
+  }
+  rooms.forEach((room) => {
+    const li = document.createElement("li");
+    li.innerText = rooms;
+    roomLists.appendChild(li);
+  });
+});
