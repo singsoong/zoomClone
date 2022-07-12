@@ -1,7 +1,8 @@
 import { count } from "console";
 import express from "express";
 import http from "http";
-import SocketIO from "socket.io";
+import { Server } from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
 const app = express();
 
 /* view engine을 pug로 설정 */
@@ -20,8 +21,16 @@ app.get("/*", (req, res) => res.redirect("/"));
 /* express application으로 부터 서버를 만듦. 이 서버에서 webSocket을 만들 수 있음, http 서버를 만든것! */
 const httpServer = http.createServer(app);
 
-/* socket.io 서버 생성 */
-const ioServer = SocketIO(httpServer);
+/* socket.io 서버 생성, 데모 환경설정*/
+const ioServer = new Server(httpServer, {
+  cors: {
+    origin: ["https://admin.socket.io"],
+    credentials: true,
+  },
+});
+instrument(ioServer, {
+auth: false,
+});
 
 /* room list print */
 function publicRooms() {
